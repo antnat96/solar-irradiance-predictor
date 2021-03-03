@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>Flight Time Logger</title>
+      <meta charset = "utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <!--Bootstrap, jQuery, Custom Styles & JS-->
+      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+      <link rel="stylesheet" href="../static/style.css">
+      <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+    <div class = "main-container">
+      <div class = "row">
+        <div class = "col-md-3 sidenav-container sidebar-min-width">
+          <div id = "sidebar-div" class="sidebar-sticky">
+            <ul class="nav flex-column">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index">
+                        All Flights
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="departures">
+                        Departures
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="arrivals">
+                        Arrivals
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="addFlight">
+                        Add A Flight
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="reports">
+                        Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="ourTeam">
+                      Our Team
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="ourMotivation">
+                      Our Motivation
+                  </a>
+                </li>
+            </ul>
+          </div>        
+        </div>
+        <div class = "col-md-9 hold-height">
+          <h1>All Flights</h1>
+          To edit a flight record, select the record and hover over the field you would like to change.
+          <br>
+          To sort records, click a header.
+          <br>
+          <div id = "table_div" class = "top-pad">
+            <table id = "flights_table" class="table table-striped pop">
+              <thead>
+                <tr>
+                  <th id = "col-id" scope="col">ID</th>
+                  <th id = "col-dep-date" scope="col">Dep. Date</th>
+                  <th id = "col-dep-location" scope="col">Dep. Location</th>
+                  <th id = "col-arr-date" scope="col">Arrival Date</th>
+                  <th id = "col-arr-location" scope="col">Arrival Location</th>
+                  <th id = "col-flt-time" scope="col">Flt Time</th>
+                  <th id = "col-cargo-wt" scope="col">Cargo Wt (Lbs)</th>
+                  <th id = "col-acft-type" scope="col">Acft Type</th>
+                  <th id = "col-tail-num" scope="col">Tail Number</th>
+                  <th scope = "col"></th>
+                </tr>
+              </thead>
+              <tbody id = "flight-table-tbody">
+                {%for flight in flights%}
+                  <tr id = 'flight-row-{{ flight["id"] }}' class = "flight-row">
+                    <td>{{ flight["id"] }}</td>
+                    <td>{{ flight["departure_date"] }}</td>
+                    <td>{{ flight["departure_location"] }}</td>
+                    <td>{{ flight["arrival_date"] }}</td>
+                    <td>{{ flight["arrival_location"] }}</td>
+                    <td>{{ flight["flight_time"] }}</td>
+                    <td>{{ flight["cargo_weight_lbs"] }}</td>
+                    <td>{{ flight["aircraft_type"] }}</td>
+                    <td>{{ flight["aircraft_tail_num"] }}</td>
+                    <td><button id = 'delete-{{ flight["id"] }}' class = 'btn btn-primary del-flt-btn btn-sm'>Delete</button></td>
+                  </tr>
+                {%endfor%}
+              </tbody>
+            </table>
+          </div>            
+        </div>
+
+        {%for flight in flights%}
+          <div id = 'flight-modal-{{ flight["id"] }}' class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Flight ID: {{ flight["id"] }}</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class = "container">
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Aircraft Type:
+                      </div>
+                      <div id = "aircraft_type-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["aircraft_type"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Tail Number:
+                      </div>
+                      <div id = "aircraft_tail_num-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["aircraft_tail_num"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Departure Date:
+                      </div>
+                      <div id = "departure_date-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["departure_date"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Departure Time (Local):
+                      </div>
+                      <div id = "departure_time_local-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["departure_time_local"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Departure Time (Zulu):
+                      </div>
+                      <div id = "departure_time_zulu-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["departure_time_zulu"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Departure Location:
+                      </div>
+                      <div id = "departure_location-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["departure_location"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Departure Airport Code:
+                      </div>
+                      <div id = "departure_airport_code-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["departure_airport_code"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Arrival Date:
+                      </div>
+                      <div id = "arrival_date-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["arrival_date"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Arrival Time (Local):
+                      </div>
+                      <div id = "arrival_time_local-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["arrival_time_local"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Arrival Time (Zulu):
+                      </div>
+                      <div id = "arrival_time_zulu-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["arrival_time_zulu"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Arrival Location:
+                      </div>
+                      <div id = "arrival_location-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["arrival_location"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Arrival Airport Code:
+                      </div>
+                      <div id = "arrival_airport_code-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["arrival_airport_code"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Flight Time:
+                      </div>
+                      <div id = "flight_time-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["flight_time"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Items of Cargo:
+                      </div>
+                      <div id = "cargo_num_of_items-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["cargo_num_of_items"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Cargo Weight (Lbs):
+                      </div>
+                      <div id = "cargo_weight_lbs-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["cargo_weight_lbs"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Cargo Weight (Kg):
+                      </div>
+                      <div id = "cargo_weight_kg-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["cargo_weight_kg"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Loading Agents:
+                      </div>
+                      <div id = "cargo_loading_agents-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["cargo_loading_agents"] }}
+                      </div>
+                    </div>
+                    <div class = "row">
+                      <div class = "col-md-6">
+                        Cargo Description:
+                      </div>
+                      <div id = "cargo_description-{{ flight['id'] }}" class = "col-md-6 editable-div">
+                        {{ flight["cargo_description"] }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary add-flight-confirmation-close" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {%endfor%}
+
+      </div>
+    </div>
+
+    <script type = "text/javascript">
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <script src = "../static/indexFunctions.js"></script>
+  </body>
+</html>
