@@ -26,8 +26,22 @@
     </nav>
     <div class = "container">
       <div class = "row">
-        <div class = "col s12 m12 l12">
+        <div class = "col s6 m6 l6">
           <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Asperiores molestias deserunt iure itaque maiores et quo quas neque, assumenda quam possimus totam vero aut laudantium maxime ab corporis obcaecati blanditiis.</p>
+          <p>Please enter the address you would like to query:</p>
+          <form action="call_api">
+            <label for="address">Address:</label><br>
+            <input type="text" id="address" name="address" value="9201 University City Blvd, Charlotte, NC 28262"><br>
+            <button class="btn waves-effect waves-light green" type="submit" name="action">Submit</button>
+          </form>  
+        </div>
+        <div class = "col s6 m6 l6">
+          <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum laboriosam reiciendis, amet, magnam inventore itaque vitae maxime rerum aliquam fugit voluptas minus dolorem. Culpa natus rem laudantium impedit repellendus harum!</p>
+          {% block content %}
+            {% if url %}
+                <p>{{ url }}</p>
+            {% endif %}
+          {% endblock content %}
         </div>
       </div>
     </div>
